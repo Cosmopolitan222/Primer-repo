@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Facturas{% endblock %}
+{% block content %}
+<div class="topbar">
+  <h1>Facturas</h1>
+  <a href="{{ url_for('factura_nueva') }}" class="btn accent">+ Nueva factura</a>
+</div>
+
+<div class="card">
+  <div class="tag-list" style="margin-bottom:14px;">
+    <a href="{{ url_for('facturas', estado='vencidas') }}" class="btn small {{ 'secondary' if estado_filtro!='vencidas' }}">Vencidas</a>
+    <a href="{{ url_for('facturas', estado='pendientes') }}" class="btn small {{ 'secondary' if estado_filtro!='pendientes' }}">Pendientes (todas)</a>
+    <a href="{{ url_for('facturas', estado='pagadas') }}" class="btn small {{ 'secondary' if estado_filtro!='pagadas' }}">Pagadas</a>
+    <a href="{{ url_for('facturas', estado='todas') }}" class="btn small {{ 'secondary' if estado_filtro!='todas' }}">Todas</a>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Nº</th><th>Cliente</th><th>Vencimiento</th><th>Estado</th><th class="num">Pendiente</th><th class="num">Total reclamable</th><th></th></tr>
+    </thead>
+    <tbody>
+    {% for f in facturas %}
+      {% set calc = calculos[f.id] %}
+      <tr>
+        <td>{{ f.numero }}</td>
+        <td><a href="{{ url_for('cliente_detalle', cliente_id=f.cliente.id) }}">{{ f.cliente.nombre }}</a></td>
+        <td>{{ f.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
+        <td>
+          {% if f.vencida %}<span class="badge badge-alto">{{ f.dias_retraso }} días</span>
+          {% elif f.estado == 'pagada' %}<span class="badge badge-bajo">Pagada</span>
+          {% elif f.estado == 'incobrable' %}<span class="badge badge-fase-4">Incobrable</span>
+          {% else %}<span class="badge badge-fase-0">Al día</span>{% endif %}
+        </td>
+        <td class="num">{{ f.pendiente|money }} €</td>
+        <td class="num">{{ calc.total_reclamable|money }} €</td>
+        <td class="text-right"><a href="{{ url_for('factura_detalle', factura_id=f.id) }}" class="btn secondary small">Ver</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="muted">No hay facturas en este filtro.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

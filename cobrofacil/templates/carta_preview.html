@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Comunicación - {{ factura.numero }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <h1>Fase {{ fase }}: {{ fases_nombres[fase] }}</h1>
+  <a href="{{ url_for('factura_detalle', factura_id=factura.id) }}" class="btn secondary">Volver a la factura</a>
+</div>
+
+<div class="card" style="max-width:760px;">
+  <p class="muted">Cliente: <b>{{ factura.cliente.nombre }}</b> · Email: {{ factura.cliente.email or 'sin email registrado' }}</p>
+  <div class="form-group">
+    <label>Asunto</label>
+    <input type="text" id="asunto" value="{{ asunto }}" readonly>
+  </div>
+  <div class="letter-preview" id="cuerpo">{{ cuerpo }}</div>
+  <div class="tag-list" style="margin-top:16px;">
+    <button class="btn accent" onclick="copiarTexto()">Copiar texto al portapapeles</button>
+    {% if factura.cliente.email %}
+    <a class="btn secondary" href="mailto:{{ factura.cliente.email }}?subject={{ asunto|urlencode }}&body={{ cuerpo|urlencode }}">Abrir en cliente de email</a>
+    {% endif %}
+    <form method="post" action="{{ url_for('factura_gestion', factura_id=factura.id) }}" style="display:inline;">
+      <input type="hidden" name="tipo" value="email">
+      <input type="hidden" name="fase" value="{{ fase }}">
+      <input type="hidden" name="descripcion" value="Enviada comunicación de fase {{ fase }} ({{ fases_nombres[fase] }}).">
+      <button class="btn secondary" type="submit">Marcar como enviada</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function copiarTexto() {
+  const asunto = document.getElementById('asunto').value;
+  const cuerpo = document.getElementById('cuerpo').innerText;
+  navigator.clipboard.writeText("Asunto: " + asunto + "\n\n" + cuerpo);
+  alert("Texto copiado al portapapeles.");
+}
+</script>
+{% endblock %}

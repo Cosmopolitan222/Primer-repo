@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Plantillas de aviso{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Plantillas de reclamación</h1></div>
+<p class="muted">Personaliza el texto de cada fase. Puedes usar estos marcadores: {numero_factura}, {fecha_vencimiento}, {dias_retraso}, {importe_total}, {importe_pendiente}, {tipo_interes_anual}, {interes_demora}, {indemnizacion_fija}, {total_reclamable}, {contacto_cliente}, {nombre_cliente}, {nombre_empresa}, {cif_empresa}.</p>
+
+{% for fase, plantilla in datos.items() %}
+<div class="card">
+  <h3 class="mt-0">Fase {{ fase }}: {{ fases_nombres[fase] }}</h3>
+  <form method="post">
+    <input type="hidden" name="fase" value="{{ fase }}">
+    <div class="form-group">
+      <label>Asunto</label>
+      <input type="text" name="asunto" value="{{ plantilla.asunto }}">
+    </div>
+    <div class="form-group">
+      <label>Cuerpo del mensaje</label>
+      <textarea name="cuerpo" rows="10">{{ plantilla.cuerpo }}</textarea>
+    </div>
+    <button class="btn accent" type="submit">Guardar plantilla de fase {{ fase }}</button>
+  </form>
+</div>
+{% endfor %}
+{% endblock %}

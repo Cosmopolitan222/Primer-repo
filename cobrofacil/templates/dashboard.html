@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Panel de control{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Panel de control</h1>
+    <div class="empresa-name">{{ empresa.nombre }}</div>
+  </div>
+  <a href="{{ url_for('factura_nueva') }}" class="btn accent">+ Nueva factura</a>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi danger highlight">
+    <div class="label">Dinero vencido sin cobrar</div>
+    <div class="value">{{ total_vencido|money }} €</div>
+    <div class="sub">{{ n_vencidas }} factura(s) vencidas</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Total pendiente de cobro</div>
+    <div class="value">{{ total_pendiente|money }} €</div>
+    <div class="sub">{{ n_pendientes }} factura(s) abiertas</div>
+  </div>
+  <div class="kpi highlight">
+    <div class="label">Intereses + indemnización reclamables</div>
+    <div class="value">{{ total_intereses_reclamables|money }} €</div>
+    <div class="sub">dinero extra que la ley te permite exigir (Ley 3/2004)</div>
+  </div>
+  <div class="kpi success">
+    <div class="label">Cobrado este mes</div>
+    <div class="value">{{ cobrado_mes_actual|money }} €</div>
+    <div class="sub">mes anterior: {{ cobrado_mes_anterior|money }} €</div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <h2 class="mt-0">Acciones de cobro para hoy</h2>
+    <p class="muted" style="margin-top:-8px;">Facturas vencidas sin gestión reciente (más de 5 días), ordenadas por importe. Total: {{ total_acciones }}.</p>
+    {% if acciones_hoy %}
+      {% for factura, fase in acciones_hoy %}
+      <div class="action-row">
+        <div>
+          <a href="{{ url_for('factura_detalle', factura_id=factura.id) }}"><b>{{ factura.cliente.nombre }}</b></a><br>
+          <span class="muted">Factura {{ factura.numero }} · {{ factura.dias_retraso }} días de retraso</span>
+        </div>
+        <div class="text-right">
+          <div><b>{{ factura.pendiente|money }} €</b></div>
+          <span class="badge badge-fase-{{ fase }}">{{ fases_nombres[fase] }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">No hay acciones pendientes hoy. ¡Buen trabajo!</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="mt-0">Antigüedad de la deuda vencida</h2>
+    <div class="bars">
+      {% for rango, valor in buckets.items() %}
+      <div class="bar-col">
+        <div class="bar-value">{{ valor|money }} €</div>
+        <div class="bar" style="height: {{ (valor / max_bucket * 100)|round(0, 'floor') }}%; background: {{ '#c0392b' if rango in ['61-90','90+'] else ('#d68910' if rango=='31-60' else '#0f4c5c') }};"></div>
+        <div class="bar-label">{{ rango }} días</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <hr class="sep">
+    <h3 class="mt-0">Top clientes morosos</h3>
+    {% if top_morosos %}
+    <table>
+      <thead><tr><th>Cliente</th><th class="num">Deuda vencida</th></tr></thead>
+      <tbody>
+      {% for cliente, importe in top_morosos %}
+        <tr>
+          <td><a href="{{ url_for('cliente_detalle', cliente_id=cliente.id) }}">{{ cliente.nombre }}</a></td>
+          <td class="num">{{ importe|money }} €</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="muted">Sin clientes morosos actualmente.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

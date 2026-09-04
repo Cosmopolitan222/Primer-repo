@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Acceso{% endblock %}
+{% block content_public %}
+<div class="login-wrap">
+  <div class="login-box">
+    <h1>CobroFácil</h1>
+    <p class="tagline">Recupera lo que te deben, con la ley de tu parte.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    <form method="post">
+      <div class="form-group">
+        <label>Contraseña de acceso</label>
+        <input type="password" name="password" autofocus required>
+      </div>
+      <button class="btn" style="width:100%" type="submit">Entrar</button>
+    </form>
+    <p class="muted" style="margin-top:18px; font-size:12px;">Demo: contraseña <b>demo1234</b></p>
+  </div>
+</div>
+{% endblock %}

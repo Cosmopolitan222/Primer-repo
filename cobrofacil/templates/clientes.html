@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Clientes{% endblock %}
+{% block content %}
+<div class="topbar">
+  <h1>Clientes</h1>
+  <a href="{{ url_for('cliente_nuevo') }}" class="btn accent">+ Nuevo cliente</a>
+</div>
+
+<div class="card">
+  <form method="get" style="margin-bottom:14px;">
+    <input type="text" name="q" placeholder="Buscar cliente..." value="{{ q }}" style="padding:8px 12px; border:1px solid var(--border); border-radius:7px; width:280px;">
+  </form>
+  <table>
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Contacto</th>
+        <th class="num">Deuda vencida</th>
+        <th>Riesgo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cliente, riesgo, deuda in datos %}
+      <tr>
+        <td><a href="{{ url_for('cliente_detalle', cliente_id=cliente.id) }}"><b>{{ cliente.nombre }}</b></a><br><span class="muted">{{ cliente.cif }}</span></td>
+        <td>{{ cliente.persona_contacto or '—' }}<br><span class="muted">{{ cliente.email }}</span></td>
+        <td class="num">{{ deuda|money }} €</td>
+        <td><span class="badge badge-{{ riesgo.nivel|lower }}">{{ riesgo.nivel }} ({{ riesgo.score }})</span></td>
+        <td class="text-right"><a href="{{ url_for('cliente_detalle', cliente_id=cliente.id) }}" class="btn secondary small">Ver ficha</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No hay clientes todavía. <a href="{{ url_for('cliente_nuevo') }}">Crea el primero</a> o <a href="{{ url_for('importar') }}">importa un CSV</a>.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

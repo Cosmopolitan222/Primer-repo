@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ cliente.nombre }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>{{ cliente.nombre }}</h1>
+    <div class="empresa-name">{{ cliente.cif }} · {{ cliente.persona_contacto or 'sin contacto asignado' }}</div>
+  </div>
+  <div class="tag-list">
+    <a href="{{ url_for('cliente_editar', cliente_id=cliente.id) }}" class="btn secondary">Editar</a>
+    <a href="{{ url_for('factura_nueva', cliente_id=cliente.id) }}" class="btn secondary">+ Factura</a>
+    <a href="{{ url_for('cliente_expediente_pdf', cliente_id=cliente.id) }}" class="btn accent">Descargar expediente PDF</a>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <h3 class="mt-0">Facturas</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Nº</th><th>Vencimiento</th><th>Estado</th>
+          <th class="num">Pendiente</th><th class="num">+ Interés</th><th class="num">Total reclamable</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for f in facturas %}
+        {% set calc = calculos[f.id] %}
+        <tr>
+          <td><a href="{{ url_for('factura_detalle', factura_id=f.id) }}">{{ f.numero }}</a></td>
+          <td>{{ f.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
+          <td>
+            {% if f.vencida %}<span class="badge badge-alto">{{ f.dias_retraso }} días retraso</span>
+            {% elif f.estado == 'pagada' %}<span class="badge badge-bajo">Pagada</span>
+            {% elif f.estado == 'incobrable' %}<span class="badge badge-fase-4">Incobrable</span>
+            {% else %}<span class="badge badge-fase-0">Al día</span>{% endif %}
+          </td>
+          <td class="num">{{ f.pendiente|money }} €</td>
+          <td class="num">{{ (calc.interes_demora + calc.indemnizacion_fija)|money }} €</td>
+          <td class="num"><b>{{ calc.total_reclamable|money }} €</b></td>
+          <td class="text-right"><a href="{{ url_for('factura_detalle', factura_id=f.id) }}" class="btn secondary small">Ver</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="muted">Este cliente no tiene facturas todavía.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <div class="card">
+      <h3 class="mt-0">Nivel de riesgo</h3>
+      <p style="font-size:30px; font-weight:700; margin:4px 0;">
+        <span class="badge badge-{{ riesgo.nivel|lower }}" style="font-size:16px; padding:5px 14px;">{{ riesgo.nivel }} · {{ riesgo.score }}/100</span>
+      </p>
+      <div class="risk-breakdown">
+        <div><span>% facturas vencidas ahora (peso 40%)</span><b>{{ riesgo.pct_facturas_vencidas }}%</b></div>
+        <div><span>Media días de retraso histórico (peso 35%)</span><b>{{ riesgo.media_dias_retraso }} días</b></div>
+        <div><span>Importe vencido / límite de riesgo (peso 25%)</span><b>{{ riesgo.pct_importe_vs_limite }}%</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="mt-0">Datos de contacto</h3>
+      <p><b>Email:</b> {{ cliente.email or '—' }}<br>
+      <b>Teléfono:</b> {{ cliente.telefono or '—' }}<br>
+      <b>Dirección:</b> {{ cliente.direccion or '—' }}</p>
+      {% if cliente.notas %}<hr class="sep"><p class="muted">{{ cliente.notas }}</p>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

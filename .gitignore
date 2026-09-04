@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+cobrofacil/instance/*.db
+cobrofacil/static/img/uploads/*
+!cobrofacil/static/img/uploads/.gitkeep
+.venv/
+venv/

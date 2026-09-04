@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Importar datos{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Importar clientes y facturas</h1></div>
+
+<div class="card" style="max-width:640px;">
+  <p>Sube un CSV exportado desde tu programa de facturación (o Excel guardado como CSV) con tus clientes y facturas pendientes. En menos de 5 minutos tendrás toda tu cartera de cobro cargada.</p>
+  <p><a href="{{ url_for('importar_plantilla') }}">Descargar plantilla CSV de ejemplo</a></p>
+  <form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label>Archivo CSV</label>
+      <input type="file" name="csv_file" accept=".csv" required>
+    </div>
+    <button class="btn accent" type="submit">Importar</button>
+  </form>
+  <hr class="sep">
+  <h3>Columnas esperadas</h3>
+  <p class="muted" style="font-size:13px;">
+    cliente_nombre, cliente_cif, cliente_email, cliente_telefono, cliente_contacto,
+    factura_numero, fecha_emision (AAAA-MM-DD), fecha_vencimiento (AAAA-MM-DD),
+    base_imponible, iva_pct
+  </p>
+  <p class="muted" style="font-size:13px;">Si un cliente ya existe (mismo nombre), sus facturas nuevas se añaden a su ficha automáticamente.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Configuración{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Configuración de la empresa</h1></div>
+
+<div class="card" style="max-width:720px;">
+  <form method="post" enctype="multipart/form-data">
+    <h3 class="mt-0">Datos de la empresa (aparecen en cartas y PDF)</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Nombre / razón social</label><input type="text" name="nombre" value="{{ empresa.nombre }}"></div>
+      <div class="form-group"><label>CIF</label><input type="text" name="cif" value="{{ empresa.cif }}"></div>
+      <div class="form-group"><label>Email de contacto</label><input type="email" name="email_contacto" value="{{ empresa.email_contacto }}"></div>
+      <div class="form-group"><label>Teléfono</label><input type="text" name="telefono" value="{{ empresa.telefono }}"></div>
+      <div class="form-group"><label>IBAN</label><input type="text" name="iban" value="{{ empresa.iban }}"></div>
+      <div class="form-group"><label>Color corporativo</label><input type="color" name="color_primario" value="{{ empresa.color_primario }}"></div>
+    </div>
+    <div class="form-group"><label>Dirección</label><input type="text" name="direccion" value="{{ empresa.direccion }}"></div>
+    <div class="form-group">
+      <label>Logo (aparece en el expediente PDF)</label>
+      <input type="file" name="logo" accept="image/*">
+      {% if empresa.logo_filename %}<p class="muted">Actual: {{ empresa.logo_filename }}</p>{% endif %}
+    </div>
+
+    <hr class="sep">
+    <h3>Parámetros legales de morosidad (Ley 3/2004)</h3>
+    <p class="muted" style="margin-top:-8px;">El tipo de interés de demora legal (BCE + 8 puntos) cambia cada semestre por resolución del Banco de España. Actualízalo aquí consultando <a href="https://www.boe.es" target="_blank" rel="noopener">boe.es</a> para que los cálculos sean siempre correctos.</p>
+    <div class="form-grid">
+      <div class="form-group"><label>Tipo de interés de demora anual (%)</label><input type="number" step="0.01" name="tipo_interes_anual" value="{{ empresa.tipo_interes_anual }}"></div>
+      <div class="form-group"><label>Referencia / fecha del tipo</label><input type="text" name="fecha_tipo_interes" value="{{ empresa.fecha_tipo_interes }}" placeholder="Ej: 2º semestre 2025"></div>
+      <div class="form-group"><label>Indemnización fija por factura (€)</label><input type="number" step="0.01" name="indemnizacion_fija" value="{{ empresa.indemnizacion_fija }}"></div>
+      <div class="form-group"><label>Plazo legal de pago (días)</label><input type="number" name="plazo_pago_dias" value="{{ empresa.plazo_pago_dias }}"></div>
+      <div class="form-group"><label>Límite de riesgo por cliente (€)</label><input type="number" step="0.01" name="limite_riesgo_cliente" value="{{ empresa.limite_riesgo_cliente }}"></div>
+    </div>
+
+    <hr class="sep">
+    <h3>Seguridad</h3>
+    <div class="form-group"><label>Nueva contraseña de acceso (dejar en blanco para no cambiar)</label><input type="password" name="nueva_password"></div>
+
+    <button class="btn accent" type="submit">Guardar configuración</button>
+  </form>
+</div>
+{% endblock %}

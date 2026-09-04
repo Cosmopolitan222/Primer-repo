@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Factura {{ factura.numero }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Factura {{ factura.numero }}</h1>
+    <div class="empresa-name"><a href="{{ url_for('cliente_detalle', cliente_id=factura.cliente.id) }}">{{ factura.cliente.nombre }}</a></div>
+  </div>
+  <div>
+    {% if factura.vencida %}<span class="badge badge-alto">{{ factura.dias_retraso }} días de retraso</span>{% endif %}
+  </div>
+</div>
+
+<div class="two-col">
+  <div>
+    <div class="card">
+      <h3 class="mt-0">Datos de la factura</h3>
+      <table>
+        <tr><td class="muted">Fecha emisión</td><td>{{ factura.fecha_emision.strftime('%d/%m/%Y') }}</td></tr>
+        <tr><td class="muted">Fecha vencimiento</td><td>{{ factura.fecha_vencimiento.strftime('%d/%m/%Y') }}</td></tr>
+        <tr><td class="muted">Base imponible</td><td>{{ factura.base_imponible|money }} €</td></tr>
+        <tr><td class="muted">IVA</td><td>{{ factura.iva_pct }}%</td></tr>
+        <tr><td class="muted">Importe total</td><td><b>{{ factura.importe_total|money }} €</b></td></tr>
+        <tr><td class="muted">Pagado</td><td>{{ factura.importe_pagado|money }} €</td></tr>
+        <tr><td class="muted">Pendiente</td><td><b>{{ factura.pendiente|money }} €</b></td></tr>
+        <tr><td class="muted">Estado</td><td>{{ factura.estado|capitalize }}</td></tr>
+      </table>
+
+      {% if factura.estado in ['pendiente', 'parcial'] %}
+      <hr class="sep">
+      <form method="post" action="{{ url_for('factura_pago', factura_id=factura.id) }}" style="display:flex; gap:10px; align-items:end;">
+        <div class="form-group" style="margin-bottom:0; flex:1;">
+          <label>Registrar pago recibido (€)</label>
+          <input type="number" step="0.01" name="importe_pagado" max="{{ factura.pendiente }}" required>
+        </div>
+        <button class="btn accent" type="submit">Registrar pago</button>
+      </form>
+      <form method="post" action="{{ url_for('factura_incobrable', factura_id=factura.id) }}" style="margin-top:10px;">
+        <button class="btn secondary small" type="submit" onclick="return confirm('¿Marcar esta factura como incobrable?')">Marcar como incobrable</button>
+      </form>
+      {% endif %}
+    </div>
+
+    {% if factura.vencida %}
+    <div class="card">
+      <h3 class="mt-0">Cálculo legal de la deuda (Ley 3/2004)</h3>
+      <table>
+        <tr><td class="muted">Días de retraso</td><td>{{ calc.dias_retraso }}</td></tr>
+        <tr><td class="muted">Principal pendiente</td><td>{{ calc.importe_pendiente|money }} €</td></tr>
+        <tr><td class="muted">Interés de demora ({{ calc.tipo_anual_pct }}% anual)</td><td>{{ calc.interes_demora|money }} €</td></tr>
+        <tr><td class="muted">Indemnización fija (art. 8)</td><td>{{ calc.indemnizacion_fija|money }} €</td></tr>
+        <tr><td><b>Total reclamable</b></td><td><b>{{ calc.total_reclamable|money }} €</b></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3 class="mt-0">Generar comunicación de reclamación</h3>
+      <p class="muted" style="margin-top:-6px;">Fase sugerida según antigüedad: <span class="badge badge-fase-{{ fase_sugerida }}">{{ fases_nombres[fase_sugerida] }}</span></p>
+      <div class="tag-list">
+        {% for f in range(1,5) %}
+        <a href="{{ url_for('factura_carta', factura_id=factura.id, fase=f) }}" class="btn {{ 'accent' if f == fase_sugerida else 'secondary' }} small">Fase {{ f }}: {{ fases_nombres[f] }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card">
+      <h3 class="mt-0">Registrar gestión de cobro</h3>
+      <form method="post" action="{{ url_for('factura_gestion', factura_id=factura.id) }}">
+        <div class="form-group">
+          <label>Tipo</label>
+          <select name="tipo">
+            <option value="llamada">Llamada telefónica</option>
+            <option value="email">Email</option>
+            <option value="carta">Carta / requerimiento</option>
+            <option value="promesa">Promesa de pago</option>
+            <option value="nota">Nota interna</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fase asociada</label>
+          <select name="fase">
+            <option value="0">—</option>
+            {% for f in range(1,5) %}<option value="{{ f }}" {{ 'selected' if f==fase_sugerida }}>Fase {{ f }}: {{ fases_nombres[f] }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea name="descripcion" rows="3" placeholder="Qué se ha hablado o enviado..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Fecha de promesa de pago (opcional)</label>
+          <input type="date" name="fecha_promesa_pago">
+        </div>
+        <button class="btn accent" type="submit">Guardar gestión</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3 class="mt-0">Historial de gestiones</h3>
+      {% if factura.gestiones %}
+        {% for g in factura.gestiones %}
+        <div class="action-row" style="display:block;">
+          <div class="flex-between">
+            <b>{{ g.tipo|capitalize }}</b>
+            <span class="muted">{{ g.fecha.strftime('%d/%m/%Y') }}</span>
+          </div>
+          {% if g.descripcion %}<div class="muted">{{ g.descripcion }}</div>{% endif %}
+          {% if g.fecha_promesa_pago %}<div class="muted">Promesa de pago: {{ g.fecha_promesa_pago.strftime('%d/%m/%Y') }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="muted">Sin gestiones registradas todavía.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
