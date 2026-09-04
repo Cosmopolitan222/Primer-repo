@@ -1,0 +1,278 @@
+// Prisma schema — Recordatorios de Citas
+// Base de datos SQLite pensada para una demo autocontenida y desplegable gratis.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ---------------------------------------------------------------------------
+// Clínica (tenant). El modelo soporta varias clínicas aunque la demo siembra
+// solo una, para que la arquitectura ya esté lista para multi-clínica.
+// ---------------------------------------------------------------------------
+model Clinic {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  timezone  String   @default("Europe/Madrid")
+  currency  String   @default("EUR")
+  phone     String?
+  email     String?
+  address   String?
+
+  // Parámetros usados para estimar el dinero recuperado en el panel.
+  // Configurables por cada clínica: nunca se muestran cifras "universales".
+  avgAppointmentValue Float @default(45)
+
+  // Textos legales / consentimiento
+  consentText      String @default("Al confirmar tu cita aceptas recibir recordatorios relacionados con ella por WhatsApp, SMS o email. Puedes darte de baja cuando quieras.")
+  privacyNoticeUrl String?
+
+  // Reloj de demostración: permite "avanzar el tiempo" para ver cómo
+  // reaccionan los recordatorios sin esperar días reales.
+  demoClockOffsetMinutes Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users            User[]
+  patients         Patient[]
+  appointments     Appointment[]
+  templates        MessageTemplate[]
+  sequences        ReminderSequence[]
+  waitlistEntries  WaitlistEntry[]
+  auditLogs        AuditLog[]
+}
+
+// Usuario del panel (personal de la clínica).
+model User {
+  id           String   @id @default(cuid())
+  clinicId     String
+  clinic       Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("ADMIN") // ADMIN | STAFF
+  createdAt    DateTime @default(now())
+}
+
+// Paciente. Minimizamos datos personales: solo lo imprescindible para
+// contactar y confirmar citas.
+model Patient {
+  id        String   @id @default(cuid())
+  clinicId  String
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  fullName  String
+  phone     String?
+  email     String?
+
+  // Consentimiento explícito para recibir comunicaciones.
+  consentGiven    Boolean   @default(false)
+  consentGivenAt  DateTime?
+  // Baja general de comunicaciones (independiente de una cita concreta).
+  unsubscribedAt  DateTime?
+
+  preferredChannel String  @default("WHATSAPP") // WHATSAPP | SMS | EMAIL
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointments    Appointment[]
+  waitlistEntries WaitlistEntry[]
+
+  @@index([clinicId])
+}
+
+// SQLite no soporta enums nativos en Prisma, así que los estados se
+// representan como String con valores controlados desde src/lib/constants.ts.
+
+model Appointment {
+  id           String   @id @default(cuid())
+  clinicId     String
+  clinic       Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patientId    String
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  service          String
+  professionalName String
+  startsAt         DateTime
+  durationMinutes  Int      @default(30)
+  price            Float?
+
+  // PENDING | CONFIRMED | CANCELLED | NO_SHOW | COMPLETED
+  status String @default("PENDING")
+
+  // Cómo se creó: MANUAL | IMPORT | WAITLIST
+  source String @default("MANUAL")
+
+  // Marca si esta cita se llenó gracias a un hueco liberado (lista de espera)
+  filledFromWaitlist Boolean @default(false)
+
+  // Token único para el enlace público de confirmación (sin login).
+  publicToken String @unique @default(cuid())
+
+  notes         String?
+  cancelReason  String?
+  changeRequestNote String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  notifications   NotificationLog[]
+  waitlistOffers  WaitlistOffer[]
+
+  @@index([clinicId, startsAt])
+  @@index([clinicId, status])
+  @@index([patientId])
+}
+
+// Plantilla de mensaje reutilizable por canal.
+model MessageTemplate {
+  id       String @id @default(cuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  name    String
+  channel String // WHATSAPP | SMS | EMAIL
+  // Se usa en canales con asunto (EMAIL). Ignorado en WhatsApp/SMS.
+  subject String?
+  body    String
+
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  steps ReminderStep[]
+
+  @@index([clinicId])
+}
+
+// Secuencia de recordatorios configurable (p.ej. "Recordatorio estándar").
+model ReminderSequence {
+  id       String  @id @default(cuid())
+  clinicId String
+  clinic   Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name     String
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  steps ReminderStep[]
+
+  @@index([clinicId])
+}
+
+// Paso individual dentro de una secuencia: "X minutos antes de la cita,
+// por canal Y, con esta plantilla".
+model ReminderStep {
+  id         String           @id @default(cuid())
+  sequenceId String
+  sequence   ReminderSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  // Minutos antes del inicio de la cita en los que debe enviarse.
+  offsetMinutesBefore Int
+  channel             String // WHATSAPP | SMS | EMAIL
+  templateId          String
+  template            MessageTemplate @relation(fields: [templateId], references: [id])
+
+  order Int @default(0)
+
+  @@index([sequenceId])
+}
+
+// Registro de cada envío (real o simulado) para trazabilidad básica.
+model NotificationLog {
+  id            String      @id @default(cuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  // Si el envío proviene de un paso de una secuencia, se guarda aquí para
+  // evitar reenviar el mismo paso dos veces.
+  reminderStepId String?
+
+  channel  String // WHATSAPP | SMS | EMAIL
+  kind     String // REMINDER | CONFIRMATION | CANCELLATION | WAITLIST_OFFER | CHANGE_REQUEST_ACK
+  status   String // SIMULATED_SENT | SENT | FAILED
+  provider String @default("simulated")
+
+  templateName String?
+  renderedPreview String
+
+  errorMessage String?
+
+  createdAt DateTime @default(now())
+
+  @@index([appointmentId])
+  @@index([appointmentId, reminderStepId])
+}
+
+// Lista de espera: pacientes que quieren un hueco antes de lo que tienen
+// asignado (o que aún no tienen cita) para un servicio/rango de fechas.
+model WaitlistEntry {
+  id        String  @id @default(cuid())
+  clinicId  String
+  clinic    Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  service            String
+  preferredFrom      DateTime
+  preferredTo        DateTime
+  professionalName   String?
+
+  // WAITING | OFFERED | BOOKED | EXPIRED | CANCELLED
+  status String @default("WAITING")
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  offers WaitlistOffer[]
+
+  @@index([clinicId, status])
+}
+
+// Oferta concreta de un hueco liberado a un paciente de la lista de espera.
+model WaitlistOffer {
+  id              String        @id @default(cuid())
+  waitlistEntryId String
+  waitlistEntry   WaitlistEntry @relation(fields: [waitlistEntryId], references: [id], onDelete: Cascade)
+  appointmentId   String
+  appointment     Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  publicToken String   @unique @default(cuid())
+  // PENDING | ACCEPTED | DECLINED | EXPIRED
+  status      String   @default("PENDING")
+  offeredAt   DateTime @default(now())
+  expiresAt   DateTime
+  respondedAt DateTime?
+
+  @@index([waitlistEntryId])
+  @@index([appointmentId])
+}
+
+// Trazabilidad básica de acciones relevantes (RGPD-friendly: sin contenido
+// libre de terceros, solo eventos del sistema).
+model AuditLog {
+  id       String @id @default(cuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  entityType String // APPOINTMENT | PATIENT | WAITLIST | SETTINGS | USER
+  entityId   String
+  action     String // CREATED | CONFIRMED | CANCELLED | NO_SHOW | RESCHEDULE_REQUESTED | REMINDER_SENT | OFFER_SENT | OFFER_ACCEPTED | ...
+  actor      String // "paciente" | "sistema" | nombre del miembro del equipo
+  detail     String?
+
+  createdAt DateTime @default(now())
+
+  @@index([clinicId, createdAt])
+  @@index([entityType, entityId])
+}
