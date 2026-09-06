@@ -23,12 +23,19 @@ interface FacturaDetalle {
   lineas: Array<{ id: number; descripcion: string; cantidad: number; precio_unitario: number; iva_pct: number; importe_linea: number }>;
 }
 
+function colorEstado(estado: string): string {
+  if (estado === "ANULADA") return "text-red-600";
+  if (estado === "PAGADA") return "text-green-700";
+  return "text-amber-600";
+}
+
 export default function FacturaDetallePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [factura, setFactura] = useState<FacturaDetalle | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [anulando, setAnulando] = useState(false);
+  const [cobrando, setCobrando] = useState(false);
 
   function cargar() {
     api
@@ -53,6 +60,18 @@ export default function FacturaDetallePage() {
     }
   }
 
+  async function handleMarcarPagada() {
+    setCobrando(true);
+    try {
+      await api.pagarFactura(Number(params.id));
+      cargar();
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Error al marcar la factura como cobrada");
+    } finally {
+      setCobrando(false);
+    }
+  }
+
   if (error) {
     return (
       <AppShell>
@@ -73,9 +92,17 @@ export default function FacturaDetallePage() {
     <AppShell>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4 no-print">
         <h1 className="text-xl font-semibold">Factura {factura.numero}</h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {factura.tipo === "ORDINARIA" && (
+            <a href={`/facturas/nueva?duplicar=${factura.id}`} className="btn-secondary">Duplicar</a>
+          )}
           <a href={`/api/facturas/${factura.id}/exportar`} className="btn-secondary">Exportar JSON</a>
           <button onClick={() => window.print()} className="btn-secondary">Imprimir / PDF</button>
+          {factura.tipo === "ORDINARIA" && factura.estado === "EMITIDA" && (
+            <button onClick={handleMarcarPagada} disabled={cobrando} className="btn-primary">
+              {cobrando ? "Marcando..." : "Marcar como cobrada"}
+            </button>
+          )}
           {factura.tipo === "ORDINARIA" && factura.estado === "EMITIDA" && (
             <button onClick={handleAnular} disabled={anulando} className="btn-danger">
               {anulando ? "Anulando..." : "Anular factura"}
@@ -95,7 +122,7 @@ export default function FacturaDetallePage() {
             <p className="text-sm text-slate-500">Factura</p>
             <p className="text-xl font-bold">{factura.numero}</p>
             <p className="text-sm text-slate-500">{new Date(factura.fecha_expedicion).toLocaleString("es-ES")}</p>
-            <p className={`text-sm font-semibold ${factura.estado === "ANULADA" ? "text-red-600" : "text-green-700"}`}>
+            <p className={`text-sm font-semibold ${colorEstado(factura.estado)}`}>
               {factura.tipo === "RECTIFICATIVA" ? "RECTIFICATIVA" : "ORDINARIA"} &middot; {factura.estado}
             </p>
           </div>

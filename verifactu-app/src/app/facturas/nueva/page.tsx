@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { api, ApiError } from "@/lib/apiClient";
 
@@ -21,18 +21,50 @@ function lineaVacia(): Linea {
 }
 
 export default function NuevaFacturaPage() {
+  return (
+    <Suspense fallback={<AppShell><p className="text-slate-500">Cargando...</p></AppShell>}>
+      <NuevaFacturaForm />
+    </Suspense>
+  );
+}
+
+function NuevaFacturaForm() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [productos, setProductos] = useState<Producto[]>([]);
   const [clienteId, setClienteId] = useState("");
   const [lineas, setLineas] = useState<Linea[]>([lineaVacia()]);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
+  const [numeroDuplicada, setNumeroDuplicada] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const duplicarId = searchParams.get("duplicar");
 
   useEffect(() => {
     api.listarClientes().then((d) => setClientes(d.clientes));
     api.listarProductos().then((d) => setProductos(d.productos));
   }, []);
+
+  useEffect(() => {
+    if (!duplicarId) return;
+    api
+      .obtenerFactura(Number(duplicarId))
+      .then((data) => {
+        const original = data.factura;
+        setClienteId(String(original.cliente.id));
+        setNumeroDuplicada(original.numero);
+        setLineas(
+          original.lineas.map((l: { descripcion: string; cantidad: number; precio_unitario: number; iva_pct: number }) => ({
+            producto_id: "",
+            descripcion: l.descripcion,
+            cantidad: String(l.cantidad),
+            precio_unitario: String(l.precio_unitario),
+            iva_pct: String(l.iva_pct),
+          }))
+        );
+      })
+      .catch((err) => setError(err instanceof ApiError ? err.message : "No se pudo cargar la factura a duplicar"));
+  }, [duplicarId]);
 
   function actualizarLinea(index: number, cambios: Partial<Linea>) {
     setLineas((prev) => prev.map((l, i) => (i === index ? { ...l, ...cambios } : l)));
@@ -94,7 +126,13 @@ export default function NuevaFacturaPage() {
 
   return (
     <AppShell>
-      <h1 className="text-xl font-semibold mb-4">Nueva factura</h1>
+      <h1 className="text-xl font-semibold mb-1">Nueva factura</h1>
+      {numeroDuplicada && (
+        <p className="text-sm text-slate-500 mb-4">
+          Cliente y lineas precargados desde la factura {numeroDuplicada}. Revisa los datos antes de emitir.
+        </p>
+      )}
+      {!numeroDuplicada && <div className="mb-4" />}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="card p-4">
           <label className="label">Cliente</label>

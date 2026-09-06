@@ -8,7 +8,12 @@ facturas mediante huellas (hash SHA-256)**, **codigo QR normativo**,
 
 Cubre el ciclo completo de un negocio pequeno: clientes, productos/servicios,
 emision de facturas, consulta e historico, y visualizacion de la cadena de
-integridad de los registros.
+integridad de los registros. Ademas, incluye dos funciones pensadas para
+ahorrar tiempo en el uso diario (que es donde compite el software de
+facturacion ya establecido en el mercado, no en el cumplimiento normativo
+en si): **marcar facturas como cobradas** (con paneles de pendiente de
+cobro / cobrado) y **duplicar una factura existente** para clientes
+recurrentes.
 
 > **Demo 100% local.** No hay coste alguno mas alla de tu maquina, no se usan
 > servicios de pago, no se piden credenciales de terceros y **no se realiza
@@ -60,11 +65,13 @@ de datos hasta que ejecutas ese comando.)
 npm test
 ```
 
-38 pruebas (Vitest) cubriendo validacion de NIF/CIF/NIE con su algoritmo real
+43 pruebas (Vitest) cubriendo validacion de NIF/CIF/NIE con su algoritmo real
 de digito de control, calculo y verificacion de la cadena de huellas
 (incluyendo deteccion de manipulacion), calculos de IVA/totales, numeracion
-secuencial de facturas, anulacion mediante factura rectificativa, y
-sanitizacion anti-inyeccion de formulas en la exportacion CSV.
+secuencial de facturas, anulacion mediante factura rectificativa, marcado de
+facturas como cobradas (y sus restricciones: no se puede pagar dos veces, ni
+anular una factura ya cobrada, ni cobrar una rectificativa), y sanitizacion
+anti-inyeccion de formulas en la exportacion CSV.
 
 ---
 
@@ -81,7 +88,10 @@ sanitizacion anti-inyeccion de formulas en la exportacion CSV.
    confirma que la cadena esta intacta.
 7. Anular una factura -> se emite automaticamente una factura rectificativa
    que compensa el importe (las facturas nunca se editan ni se borran).
-8. Exportar una factura individual (JSON) o el historico completo (CSV).
+8. Marcar una factura como cobrada (o duplicarla para un cliente recurrente,
+   precargando cliente y lineas en una factura nueva a revisar antes de
+   emitir).
+9. Exportar una factura individual (JSON) o el historico completo (CSV).
 
 Este recorrido se ha probado de forma automatizada con Playwright/Chromium
 contra un build de produccion real (`npm run build && npm start`), navegando

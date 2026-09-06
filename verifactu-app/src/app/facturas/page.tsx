@@ -15,6 +15,12 @@ interface Factura {
   estado: string;
 }
 
+function colorEstado(estado: string): string {
+  if (estado === "ANULADA") return "text-red-600";
+  if (estado === "PAGADA") return "text-green-700";
+  return "text-amber-600";
+}
+
 export default function FacturasPage() {
   const [facturas, setFacturas] = useState<Factura[]>([]);
   const [filtro, setFiltro] = useState("");
@@ -54,6 +60,7 @@ export default function FacturasPage() {
               <th>Cliente</th>
               <th>Total</th>
               <th>Estado</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -67,12 +74,19 @@ export default function FacturasPage() {
                 <td>{f.cliente_nombre}</td>
                 <td>{f.total.toFixed(2)} €</td>
                 <td>
-                  <span className={f.estado === "ANULADA" ? "text-red-600" : "text-green-700"}>{f.estado}</span>
+                  <span className={colorEstado(f.estado)}>{f.estado}</span>
+                </td>
+                <td>
+                  {f.tipo === "ORDINARIA" && (
+                    <Link href={`/facturas/nueva?duplicar=${f.id}`} className="text-brand-600 text-xs hover:underline">
+                      Duplicar
+                    </Link>
+                  )}
                 </td>
               </tr>
             ))}
             {visibles.length === 0 && (
-              <tr><td colSpan={6} className="text-center text-slate-400 py-6">Sin resultados</td></tr>
+              <tr><td colSpan={7} className="text-center text-slate-400 py-6">Sin resultados</td></tr>
             )}
           </tbody>
         </table>

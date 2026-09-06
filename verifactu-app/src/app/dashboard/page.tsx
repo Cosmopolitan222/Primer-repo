@@ -32,9 +32,10 @@ export default function DashboardPage() {
       .catch((err) => setError(err instanceof Error ? err.message : "Error cargando el panel"));
   }, []);
 
-  const totalFacturado = facturas
-    .filter((f) => f.estado === "EMITIDA")
-    .reduce((acc, f) => acc + f.total, 0);
+  const facturasCobradas = facturas.filter((f) => f.estado === "PAGADA");
+  const facturasPendientes = facturas.filter((f) => f.estado === "EMITIDA");
+  const totalCobrado = facturasCobradas.reduce((acc, f) => acc + f.total, 0);
+  const totalPendiente = facturasPendientes.reduce((acc, f) => acc + f.total, 0);
 
   return (
     <AppShell>
@@ -53,9 +54,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="card p-4 mb-6">
-        <p className="text-sm text-slate-500">Total facturado (facturas emitidas, no anuladas)</p>
-        <p className="text-2xl font-bold text-brand-800">{totalFacturado.toFixed(2)} €</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="card p-4">
+          <p className="text-sm text-slate-500">Pendiente de cobro ({facturasPendientes.length} facturas)</p>
+          <p className="text-2xl font-bold text-amber-600">{totalPendiente.toFixed(2)} €</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-sm text-slate-500">Cobrado ({facturasCobradas.length} facturas)</p>
+          <p className="text-2xl font-bold text-green-700">{totalCobrado.toFixed(2)} €</p>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-3 mb-6">
@@ -86,7 +93,7 @@ export default function DashboardPage() {
                 <td>{f.cliente_nombre}</td>
                 <td>{f.total.toFixed(2)} €</td>
                 <td>
-                  <span className={f.estado === "ANULADA" ? "text-red-600" : "text-green-700"}>{f.estado}</span>
+                  <span className={colorEstado(f.estado)}>{f.estado}</span>
                 </td>
               </tr>
             ))}
@@ -98,6 +105,12 @@ export default function DashboardPage() {
       </div>
     </AppShell>
   );
+}
+
+function colorEstado(estado: string): string {
+  if (estado === "ANULADA") return "text-red-600";
+  if (estado === "PAGADA") return "text-green-700";
+  return "text-amber-600";
 }
 
 function Metric({ label, value, href }: { label: string; value: number; href: string }) {

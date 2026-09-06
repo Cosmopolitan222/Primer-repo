@@ -126,7 +126,7 @@ function runMigrations(db: DatabaseSync) {
     CREATE TABLE IF NOT EXISTS invoice_status_events (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id),
-      estado TEXT NOT NULL CHECK(estado IN ('EMITIDA','ANULADA')),
+      estado TEXT NOT NULL CHECK(estado IN ('EMITIDA','ANULADA','PAGADA')),
       motivo TEXT,
       usuario_id INTEGER REFERENCES users(id),
       created_at TEXT NOT NULL

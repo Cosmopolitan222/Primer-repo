@@ -235,11 +235,13 @@ export function crearFactura(businessId: number, input: FacturaInput, usuarioId:
   return factura;
 }
 
-function estadoActualFactura(facturaId: number): "EMITIDA" | "ANULADA" {
+export type EstadoFactura = "EMITIDA" | "ANULADA" | "PAGADA";
+
+function estadoActualFactura(facturaId: number): EstadoFactura {
   const db = getDb();
   const fila = db
     .prepare("SELECT estado FROM invoice_status_events WHERE invoice_id = ? ORDER BY id DESC LIMIT 1")
-    .get(facturaId) as { estado: "EMITIDA" | "ANULADA" } | undefined;
+    .get(facturaId) as { estado: EstadoFactura } | undefined;
   return fila?.estado ?? "EMITIDA";
 }
 
@@ -252,8 +254,12 @@ export function anularFactura(businessId: number, facturaId: number, motivo: unk
   if (original.tipo === "RECTIFICATIVA") {
     throw new ValidationError("No se puede anular una factura rectificativa");
   }
-  if (estadoActualFactura(facturaId) === "ANULADA") {
+  const estadoActual = estadoActualFactura(facturaId);
+  if (estadoActual === "ANULADA") {
     throw new ValidationError("La factura ya esta anulada");
+  }
+  if (estadoActual === "PAGADA") {
+    throw new ValidationError("No se puede anular una factura ya marcada como cobrada");
   }
   const motivoTexto = requireNonEmpty(motivo, "motivo de anulacion", 300);
 
@@ -297,9 +303,41 @@ export function anularFactura(businessId: number, facturaId: number, motivo: unk
   return rectificativa;
 }
 
+/** Marca una factura como cobrada. No altera ningun campo de la factura: anade un evento de estado, igual que la anulacion. */
+export function marcarFacturaPagada(businessId: number, facturaId: number, usuarioId: number): void {
+  const db = getDb();
+  const factura = db
+    .prepare("SELECT id, tipo FROM invoices WHERE id = ? AND business_id = ?")
+    .get(facturaId, businessId) as { id: number; tipo: "ORDINARIA" | "RECTIFICATIVA" } | undefined;
+  if (!factura) throw new ValidationError("Factura no encontrada");
+  if (factura.tipo === "RECTIFICATIVA") {
+    throw new ValidationError("Una factura rectificativa no se marca como cobrada");
+  }
+  const estadoActual = estadoActualFactura(facturaId);
+  if (estadoActual === "ANULADA") {
+    throw new ValidationError("No se puede cobrar una factura anulada");
+  }
+  if (estadoActual === "PAGADA") {
+    throw new ValidationError("La factura ya esta marcada como cobrada");
+  }
+
+  const createdAt = nowIso();
+  db.prepare(
+    `INSERT INTO invoice_status_events (invoice_id, estado, motivo, usuario_id, created_at) VALUES (?, 'PAGADA', NULL, ?, ?)`
+  ).run(facturaId, usuarioId, createdAt);
+
+  registrarEvento({
+    businessId,
+    tipo: "FACTURA_COBRADA",
+    entidad: "factura",
+    entidadId: facturaId,
+    usuarioId,
+  });
+}
+
 export interface FacturaResumen extends FacturaRow {
   cliente_nombre: string;
-  estado: "EMITIDA" | "ANULADA";
+  estado: EstadoFactura;
 }
 
 export function listarFacturas(businessId: number): FacturaResumen[] {

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { getDb, nowIso } from "../src/lib/db";
 import { crearCliente } from "../src/lib/clients";
 import { crearProducto } from "../src/lib/products";
-import { crearFactura, anularFactura, listarFacturas, verificarCadenaNegocio } from "../src/lib/invoices";
+import { crearFactura, anularFactura, marcarFacturaPagada, listarFacturas, verificarCadenaNegocio } from "../src/lib/invoices";
 import { ValidationError } from "../src/lib/validation";
 
 let businessId: number;
@@ -110,6 +110,39 @@ describe("anularFactura", () => {
     const factura = crearFactura(businessId, { client_id: clienteId, lineas: [{ descripcion: "x", cantidad: 1, precio_unitario: 10, iva_pct: 21 }] }, userId);
     const rectificativa = anularFactura(businessId, factura.id, "Motivo", userId);
     expect(() => anularFactura(businessId, rectificativa.id, "Otro motivo", userId)).toThrow(ValidationError);
+  });
+});
+
+describe("marcarFacturaPagada", () => {
+  it("marca la factura como PAGADA", () => {
+    const factura = crearFactura(businessId, { client_id: clienteId, lineas: [{ descripcion: "x", cantidad: 1, precio_unitario: 20, iva_pct: 21 }] }, userId);
+    marcarFacturaPagada(businessId, factura.id, userId);
+    const facturas = listarFacturas(businessId);
+    expect(facturas.find((f) => f.id === factura.id)?.estado).toBe("PAGADA");
+  });
+
+  it("no permite marcarla como pagada dos veces", () => {
+    const factura = crearFactura(businessId, { client_id: clienteId, lineas: [{ descripcion: "x", cantidad: 1, precio_unitario: 20, iva_pct: 21 }] }, userId);
+    marcarFacturaPagada(businessId, factura.id, userId);
+    expect(() => marcarFacturaPagada(businessId, factura.id, userId)).toThrow(ValidationError);
+  });
+
+  it("no permite anular una factura ya marcada como pagada", () => {
+    const factura = crearFactura(businessId, { client_id: clienteId, lineas: [{ descripcion: "x", cantidad: 1, precio_unitario: 20, iva_pct: 21 }] }, userId);
+    marcarFacturaPagada(businessId, factura.id, userId);
+    expect(() => anularFactura(businessId, factura.id, "Motivo", userId)).toThrow(ValidationError);
+  });
+
+  it("no permite marcar como pagada una factura ya anulada", () => {
+    const factura = crearFactura(businessId, { client_id: clienteId, lineas: [{ descripcion: "x", cantidad: 1, precio_unitario: 20, iva_pct: 21 }] }, userId);
+    anularFactura(businessId, factura.id, "Motivo", userId);
+    expect(() => marcarFacturaPagada(businessId, factura.id, userId)).toThrow(ValidationError);
+  });
+
+  it("no permite marcar como pagada una factura rectificativa", () => {
+    const factura = crearFactura(businessId, { client_id: clienteId, lineas: [{ descripcion: "x", cantidad: 1, precio_unitario: 20, iva_pct: 21 }] }, userId);
+    const rectificativa = anularFactura(businessId, factura.id, "Motivo", userId);
+    expect(() => marcarFacturaPagada(businessId, rectificativa.id, userId)).toThrow(ValidationError);
   });
 });
 

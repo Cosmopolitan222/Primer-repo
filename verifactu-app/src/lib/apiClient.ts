@@ -40,6 +40,7 @@ export const api = {
   obtenerFactura: (id: number) => request(`/api/facturas/${id}`),
   anularFactura: (id: number, motivo: string) =>
     request(`/api/facturas/${id}/anular`, { method: "POST", body: JSON.stringify({ motivo }) }),
+  pagarFactura: (id: number) => request(`/api/facturas/${id}/pagar`, { method: "POST" }),
 
   verificarCadena: () => request("/api/cadena"),
   listarEventos: () => request("/api/eventos"),
