@@ -1,0 +1,35 @@
+{
+  "name": "verifactu-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de facturacion para autonomos y pequenos negocios con encadenamiento de facturas al estilo Verifactu (demo local, sin conexion a AEAT).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "seed": "tsx --env-file=.env.local scripts/seed.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "2.4.3",
+    "next": "14.2.35",
+    "qrcode": "1.5.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "2.4.6",
+    "@types/node": "20.14.2",
+    "@types/qrcode": "1.5.5",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "autoprefixer": "10.4.19",
+    "postcss": "8.5.28",
+    "tailwindcss": "3.4.4",
+    "tsx": "4.23.13",
+    "typescript": "5.4.5",
+    "vitest": "2.1.9"
+  }
+}

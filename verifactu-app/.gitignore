@@ -1,0 +1,9 @@
+node_modules/
+.next/
+data/*.sqlite
+data/*.sqlite-*
+.env.local
+*.log
+.DS_Store
+coverage/
+*.tsbuildinfo
