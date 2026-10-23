@@ -1,0 +1,26 @@
+{
+  "name": "simulador-visitas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MVP de visitas virtuales para inmobiliarias (Cloudflare Workers + D1 + R2)",
+  "type": "module",
+  "scripts": {
+    "setup": "wrangler d1 migrations apply DB --local && wrangler d1 execute DB --local --file=seed/demo.sql",
+    "dev": "wrangler dev",
+    "reset-local": "node scripts/reset-local.mjs && npm run setup",
+    "demo:generate": "node scripts/generate-demo.mjs",
+    "deploy": "wrangler deploy",
+    "db:remote": "wrangler d1 migrations apply DB --remote && wrangler d1 execute DB --remote --file=seed/demo.sql",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "hono": "4.10.4"
+  },
+  "devDependencies": {
+    "jpeg-js": "0.4.4",
+    "wrangler": "4.45.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

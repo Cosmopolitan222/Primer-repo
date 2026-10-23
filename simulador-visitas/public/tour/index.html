@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111418">
+  <title>Visita virtual</title>
+  <link rel="stylesheet" href="/vendor/pannellum/pannellum.css">
+  <link rel="stylesheet" href="/tour/tour.css">
+  <script src="/vendor/pannellum/pannellum.js" defer></script>
+  <script type="module" src="/tour/tour.js"></script>
+</head>
+<body>
+  <main id="tour" class="is-loading">
+    <!-- Capas de visualización: panorámica 360° o foto normal -->
+    <div id="pano" class="layer" hidden></div>
+    <div id="flat" class="layer" hidden></div>
+    <div id="fade" class="layer" aria-hidden="true"></div>
+
+    <!-- Pantalla de carga -->
+    <div id="loader" class="layer">
+      <img id="loader-logo" alt="" hidden>
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="loader-text">Cargando visita virtual…</p>
+    </div>
+
+    <!-- Cabecera: marca de la inmobiliaria y estancia actual -->
+    <header class="topbar">
+      <a id="brand" class="brand" target="_blank" rel="noopener"><img id="brand-logo" alt=""><span id="brand-name"></span></a>
+      <div class="room-title">
+        <strong id="room-name"></strong>
+        <button id="room-info-btn" class="chip" type="button" aria-expanded="false"></button>
+      </div>
+    </header>
+
+    <!-- Ficha de la estancia (m², orientación, calidades) -->
+    <section id="room-info" class="card info-card" hidden>
+      <button class="close" type="button" data-close aria-label="Cerrar">×</button>
+      <h2 id="ri-title"></h2>
+      <p id="ri-meta" class="muted"></p>
+      <p id="ri-features"></p>
+      <hr>
+      <h3 id="ri-prop-title"></h3>
+      <p id="ri-prop-meta" class="muted"></p>
+      <p id="ri-prop-desc"></p>
+    </section>
+
+    <!-- Tarjeta de hotspot informativo -->
+    <section id="hs-card" class="card info-card" hidden>
+      <button class="close" type="button" data-close aria-label="Cerrar">×</button>
+      <h2 id="hs-title"></h2>
+      <p id="hs-text"></p>
+    </section>
+
+    <!-- Plano con la posición actual -->
+    <aside id="plan" class="plan" hidden>
+      <div class="plan-inner"><img id="plan-img" alt="Plano de la vivienda"><div id="plan-dots"></div></div>
+    </aside>
+
+    <!-- Barra inferior -->
+    <footer class="bottombar">
+      <nav id="rooms" class="rooms" aria-label="Estancias"></nav>
+      <div class="controls">
+        <button id="btn-prev" type="button" title="Estancia anterior" aria-label="Estancia anterior">‹</button>
+        <button id="btn-play" type="button" title="Recorrido automático" aria-label="Recorrido automático">▶</button>
+        <button id="btn-next" type="button" title="Estancia siguiente" aria-label="Estancia siguiente">›</button>
+        <span class="sep"></span>
+        <button id="btn-zoom-out" type="button" title="Alejar" aria-label="Alejar">−</button>
+        <button id="btn-zoom-in" type="button" title="Acercar" aria-label="Acercar">+</button>
+        <button id="btn-gyro" type="button" title="Mover con el móvil" aria-label="Mover con el móvil" hidden>⟲</button>
+        <button id="btn-plan" type="button" title="Plano" aria-label="Plano" hidden>▦</button>
+        <button id="btn-rooms" type="button" title="Estancias" aria-label="Ver estancias">☰</button>
+        <button id="btn-fs" type="button" title="Pantalla completa" aria-label="Pantalla completa">⛶</button>
+        <button id="btn-contact" class="cta" type="button">Contactar</button>
+      </div>
+    </footer>
+
+    <!-- Contacto / captación de leads -->
+    <dialog id="contact">
+      <form method="dialog" class="close-form"><button class="close" aria-label="Cerrar">×</button></form>
+      <h2>¿Te interesa esta vivienda?</h2>
+      <p id="contact-agency" class="muted"></p>
+      <div class="contact-actions">
+        <a id="c-whatsapp" class="btn whatsapp" target="_blank" rel="noopener" hidden>WhatsApp</a>
+        <a id="c-call" class="btn" hidden>Llamar</a>
+        <a id="c-email" class="btn" hidden>Email</a>
+      </div>
+      <form id="lead-form" class="lead-form">
+        <p class="muted">O déjanos tus datos y te llamamos:</p>
+        <input name="name" placeholder="Nombre" required autocomplete="name">
+        <input name="phone" placeholder="Teléfono" type="tel" autocomplete="tel">
+        <input name="email" placeholder="Email" type="email" autocomplete="email">
+        <textarea name="message" rows="2" placeholder="Mensaje (opcional)"></textarea>
+        <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn primary" type="submit">Enviar</button>
+        <p id="lead-msg" role="status"></p>
+      </form>
+    </dialog>
+
+    <div id="error" class="layer error" hidden><p id="error-text"></p></div>
+  </main>
+</body>
+</html>

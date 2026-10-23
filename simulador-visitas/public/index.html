@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visitas Virtuales</title>
+  <style>
+    :root { --ink: #1b1f24; --muted: #5b6470; --brand: #1f4e5f; --accent: #e0a43b; --bg: #f6f4f0; }
+    @media (prefers-color-scheme: dark) { :root { --ink: #eceae6; --muted: #a3a9b1; --bg: #15181c; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+    main { max-width: 880px; margin: 0 auto; padding: 48px 16px; }
+    h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.15; margin: 0 0 12px; }
+    p { color: var(--muted); max-width: 60ch; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0 32px; }
+    a.btn { padding: 12px 20px; border-radius: 10px; text-decoration: none; font-weight: 600; background: var(--brand); color: #fff; }
+    a.btn.alt { background: transparent; color: var(--ink); border: 1px solid currentColor; }
+    iframe { width: 100%; aspect-ratio: 16 / 10; border: 0; border-radius: 14px; background: #111; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Visitas virtuales para inmobiliarias</h1>
+    <p>Sube las fotos de cada estancia (360° o normales), conecta las puertas con hotspots y publica un recorrido navegable que se inserta en cualquier web con un enlace o un iframe.</p>
+    <div class="actions">
+      <a class="btn" href="/t/demo">Ver la vivienda de demostración</a>
+      <a class="btn alt" href="/admin/">Entrar al panel</a>
+    </div>
+    <!-- Ejemplo de inserción tal cual la copiaría una inmobiliaria en su web -->
+    <iframe src="/t/demo" allow="fullscreen; accelerometer; gyroscope; magnetometer" allowfullscreen loading="lazy" title="Visita virtual de demostración"></iframe>
+  </main>
+</body>
+</html>

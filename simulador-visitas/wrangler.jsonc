@@ -1,0 +1,38 @@
+// Configuración de Cloudflare Workers (https://developers.cloudflare.com/workers/wrangler/configuration/)
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "simulador-visitas",
+  "main": "src/index.js",
+  "compatibility_date": "2025-10-01",
+
+  // Archivos estáticos (panel, visor, demo). Las rutas dinámicas pasan antes por el Worker.
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/t/*", "/media/*"]
+  },
+
+  // Base de datos SQLite gestionada (gratis hasta 5 GB)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "visitas-db",
+      // Sustituye por el ID que te da `npx wrangler d1 create visitas-db` (paso 4 del README).
+      // En local no hace falta cambiarlo.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // Almacenamiento de imágenes (gratis hasta 10 GB y sin coste de tráfico)
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "visitas-media" }
+  ],
+
+  "vars": {
+    // Email con el que entra el administrador. La contraseña va en el secreto ADMIN_PASSWORD.
+    "ADMIN_EMAIL": "admin@visitas.local"
+  },
+
+  "observability": { "enabled": true }
+}

@@ -1,0 +1,4 @@
+# Copia este archivo como .dev.vars (solo para desarrollo local).
+# En producción se configuran con: npx wrangler secret put NOMBRE
+ADMIN_PASSWORD=admin1234
+SESSION_SECRET=cambia-esto-por-una-frase-larga-y-aleatoria
