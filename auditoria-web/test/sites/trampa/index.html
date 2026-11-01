@@ -1,0 +1,11 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Tienda Trampa</title>
+<script>document.cookie="sess=1;path=/";
+function load(){var s=document.createElement('script');s.src='https://analytics.tiktok.com/i18n/pixel/events.js';document.head.appendChild(s);document.cookie="_ttp=abc;path=/";}
+if(localStorage.getItem('c')) load();
+function acc(){localStorage.setItem('c','all');load();document.getElementById('b').remove()}
+function rej(){localStorage.setItem('c','none');load();document.getElementById('b').remove()}
+window.addEventListener('load',()=>{if(localStorage.getItem('c'))document.getElementById('b').remove()});
+</script></head><body><h1>Tienda trampa</h1>
+<div id="b" style="position:fixed;bottom:0;left:0;right:0;background:#fff;padding:20px;border-top:1px solid #000">Utilizamos cookies propias y de terceros con fines analíticos y publicitarios.
+<button onclick="acc()" style="width:300px;height:60px">Aceptar todas</button> <button onclick="rej()" style="font-size:10px">Rechazar</button></div>
+<footer><a href="/aviso-legal.html">Aviso legal</a> <a href="/privacidad.html">Política de privacidad</a> <a href="/cookies.html">Política de cookies</a></footer></body></html>

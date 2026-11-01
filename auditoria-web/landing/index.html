@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CumpleWeb · ¿Tu tienda online rastrea antes de pedir permiso?</title>
+<meta name="description" content="Revisamos gratis las cookies y los textos legales de tu tienda online con un navegador real. Te enseñamos las pruebas y, si quieres, lo dejamos resuelto en 48 h.">
+<style>
+:root{--ink:#101828;--mut:#475467;--line:#e4e7ec;--acc:#0b5cab;--bg:#fff;--soft:#f5f8fc;--ok:#067647;--bad:#b42318}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+.w{max-width:1040px;margin:0 auto;padding:0 20px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+.logo{font-weight:800;color:var(--acc);font-size:20px;text-decoration:none}
+.btn{display:inline-block;background:var(--acc);color:#fff;text-decoration:none;font-weight:700;padding:13px 20px;border-radius:10px;border:0;font-size:16px;cursor:pointer}
+.btn.sec{background:#fff;color:var(--acc);border:2px solid var(--acc)}
+.hero{padding:40px 0 56px;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center}
+h1{font-size:42px;line-height:1.12;margin:0 0 16px;letter-spacing:-.5px}h2{font-size:30px;margin:0 0 14px}
+.lead{font-size:19px;color:var(--mut)}
+.card{border:1px solid var(--line);border-radius:14px;padding:22px;background:#fff}
+.mock .row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0;font-size:14px}
+.mock .bad{color:var(--bad);font-weight:700}.mock .ok{color:var(--ok);font-weight:700}
+form.scan{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+form.scan input{flex:1;min-width:220px;padding:13px 14px;border:1px solid #d0d5dd;border-radius:10px;font-size:16px}
+.small{font-size:13px;color:var(--mut)}
+section{padding:56px 0}.alt{background:var(--soft)}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.price b.p{font-size:36px;display:block;margin:6px 0}.price ul{padding-left:18px;margin:12px 0 18px}.price.hl{border:2px solid var(--acc)}
+.steps{counter-reset:s}.steps .card{position:relative;padding-top:44px}.steps .card:before{counter-increment:s;content:counter(s);position:absolute;top:14px;left:22px;font-weight:800;color:var(--acc);font-size:22px}
+details{border-bottom:1px solid var(--line);padding:14px 0}summary{font-weight:700;cursor:pointer}
+footer{padding:28px 0;color:var(--mut);font-size:13px;border-top:1px solid var(--line)}
+@media (max-width:820px){.hero,.g3{grid-template-columns:1fr}h1{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="w">
+<nav><a class="logo" href="#">CumpleWeb</a><a class="btn sec" href="#diagnostico">Diagnóstico gratis</a></nav>
+
+<div class="hero">
+  <div>
+    <h1>¿Tu tienda online instala cookies de Google o Facebook antes de pedir permiso?</h1>
+    <p class="lead">Suele pasar sin que el dueño lo sepa: lo instala un plugin, una app o la agencia. La AEPD sanciona esto también a pequeñas empresas. Lo comprobamos gratis con un navegador real y te enseñamos las pruebas.</p>
+    <form class="scan" id="diagnostico" onsubmit="return pedir(event)">
+      <input id="url" type="text" inputmode="url" placeholder="tutienda.es" required aria-label="Dirección de tu tienda">
+      <button class="btn" type="submit">Quiero mi diagnóstico gratis</button>
+    </form>
+    <p class="small">Te lo enviamos en menos de 24 h laborables. Sin compromiso y sin tarjeta.</p>
+  </div>
+  <div class="card mock" aria-label="Ejemplo de resultado">
+    <b>Ejemplo de diagnóstico</b>
+    <div class="row"><span>Cookies de rastreo antes de aceptar</span><span class="bad">4 (_ga, _fbp, _ttp…)</span></div>
+    <div class="row"><span>Botón «Rechazar» en el banner</span><span class="bad">No</span></div>
+    <div class="row"><span>¿Respeta el rechazo?</span><span class="bad">No</span></div>
+    <div class="row"><span>Aviso legal con NIF</span><span class="ok">Sí</span></div>
+    <div class="row"><span>Política de privacidad</span><span class="ok">Sí</span></div>
+    <div class="row"><span>Errores de accesibilidad</span><span class="bad">12</span></div>
+    <p class="small" style="margin-bottom:0">Nivel de riesgo: <b style="color:var(--bad)">ALTO</b></p>
+  </div>
+</div>
+</div>
+
+<section class="alt"><div class="w">
+  <h2>Qué revisamos</h2>
+  <div class="g3">
+    <div class="card"><b>Cookies y rastreadores</b><p>Qué se instala antes de que el cliente acepte, si el banner deja rechazar en la primera capa y si de verdad respeta el «no». Con cookies y peticiones registradas como prueba.</p></div>
+    <div class="card"><b>Textos legales</b><p>Aviso legal con los datos que exige la LSSI (titular, NIF, contacto), política de privacidad, política de cookies y formularios que recogen emails.</p></div>
+    <div class="card"><b>Accesibilidad</b><p>Errores automáticos según WCAG 2.1 AA, la norma que exige la Ley 11/2023 a las tiendas online desde junio de 2025 (las microempresas están exentas).</p></div>
+  </div>
+</div></section>
+
+<section><div class="w">
+  <h2>Precios claros</h2>
+  <div class="g3">
+    <div class="card price"><b>Diagnóstico</b><b class="p">Gratis</b>Resumen con el nivel de riesgo y las dos incidencias principales, con pruebas.<ul><li>Captura de lo que ve tu cliente</li><li>Cookies detectadas</li></ul><a class="btn sec" href="#diagnostico">Pedirlo</a></div>
+    <div class="card price hl"><b>Lo dejamos resuelto</b><b class="p">190 €</b>Corregimos todo lo de cookies y textos legales en tu plataforma (Shopify, WordPress/WooCommerce, PrestaShop…).<ul><li>Banner con «Rechazar» y bloqueo previo real</li><li>Google Consent Mode v2</li><li>Aviso legal, privacidad y cookies revisados</li><li>Informe de verificación final</li><li>Entrega en 48–72 h</li></ul><a class="btn" href="PAGO_ARREGLO">Contratar</a></div>
+    <div class="card price"><b>Informe completo</b><b class="p">49 €</b>Todas las incidencias con pruebas y la solución paso a paso para tu plataforma, para que lo arregle tu equipo.<ul><li>Incluye anexo de accesibilidad</li><li>Segunda revisión gratis tras corregirlo</li><li>Se descuenta si luego contratas el arreglo</li></ul><a class="btn sec" href="PAGO_INFORME">Comprar</a></div>
+  </div>
+  <p class="small">¿Ya cumples? <b>Vigilancia mensual por 15 €/mes</b>: revisamos tu web cada mes y te avisamos si un plugin o una app nueva vuelve a instalar rastreadores sin permiso. Precios sin IVA.</p>
+</div></section>
+
+<section class="alt"><div class="w steps">
+  <h2>Cómo funciona</h2>
+  <div class="g3">
+    <div class="card">Nos dejas la dirección de tu tienda. Un navegador real la visita como lo haría un cliente nuevo, sin aceptar nada.</div>
+    <div class="card">Recibes el diagnóstico con las pruebas: qué cookies se instalan, a qué servicios se envían datos y qué falta en tus textos legales.</div>
+    <div class="card">Lo corriges tú con el informe o lo dejamos resuelto nosotros. Al terminar, volvemos a pasar la revisión y te damos el informe limpio.</div>
+  </div>
+</div></section>
+
+<section><div class="w">
+  <h2>Preguntas frecuentes</h2>
+  <details><summary>¿Ya tengo un banner de cookies, no es suficiente?</summary><p>Tener banner no basta: muchos se muestran pero no bloquean nada, o no dejan rechazar en la primera capa. Es justo lo que comprobamos.</p></details>
+  <details><summary>¿Sois abogados?</summary><p>No. Hacemos una revisión técnica y la corrección técnica de tu web. Si necesitas asesoramiento jurídico sobre tu caso concreto, te recomendamos consultar con un profesional del derecho.</p></details>
+  <details><summary>¿Necesitáis acceso a mi web?</summary><p>Para el diagnóstico, no: solo miramos lo que ve cualquier visitante. Para dejarlo resuelto, nos das un usuario temporal que puedes borrar al terminar.</p></details>
+  <details><summary>¿Y si no encontráis nada?</summary><p>Te lo decimos y no pagas nada. El diagnóstico es gratuito siempre.</p></details>
+  <details><summary>¿Cómo se paga?</summary><p>Por enlace de pago con tarjeta o por transferencia, con factura. El arreglo se paga al aceptar el presupuesto; si no queda resuelto, te devolvemos el dinero.</p></details>
+</div></section>
+
+<div class="w"><footer>
+CumpleWeb · <span id="contacto">TU-EMAIL@ejemplo.com</span> · Titular: TU NOMBRE, NIF TU-NIF (ver <a href="aviso-legal.html">aviso legal</a> y <a href="privacidad.html">privacidad</a>). Esta web no usa cookies.
+</footer></div>
+
+<script>
+// Sin servidor: abre el correo del visitante con la petición rellenada.
+var EMAIL = 'TU-EMAIL@ejemplo.com';
+function pedir(e){
+  e.preventDefault();
+  var u = document.getElementById('url').value.trim();
+  location.href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent('Diagnóstico gratis: ' + u) +
+    '&body=' + encodeURIComponent('Hola, quiero el diagnóstico gratuito de ' + u + '.\n\nMi nombre:\nMi teléfono (opcional):\n\nHe leído la política de privacidad y acepto que uséis este email para enviarme el diagnóstico.');
+  return false;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Tienda Buena</title>
+<script>function acc(){document.cookie="_ga=GA1.1.1;path=/";localStorage.setItem('c',1);document.getElementById('b').remove()}
+function rej(){localStorage.setItem('c',0);document.getElementById('b').remove()}
+window.addEventListener('load',()=>{if(localStorage.getItem('c')!==null)document.getElementById('b').remove()});</script>
+</head><body><main><h1>Tienda buena</h1><p>Productos artesanos.</p>
+<form action="/n"><label for="e">Email</label><input id="e" type="email"><label><input type="checkbox"> He leído la <a href="/privacidad.html">política de privacidad</a></label><button>Enviar</button></form></main>
+<div id="b" role="dialog" aria-label="Cookies" style="position:fixed;bottom:0;left:0;right:0;background:#fff;padding:20px">Usamos cookies analíticas solo si las aceptas. <button onclick="acc()">Aceptar</button> <button onclick="rej()">Rechazar</button> <button>Configurar</button></div>
+<footer><a href="/aviso-legal.html">Aviso legal</a> <a href="/privacidad.html">Privacidad</a> <a href="/cookies.html">Cookies</a></footer></body></html>

@@ -1,0 +1,2 @@
+# Un dominio por línea
+# ejemplo-tienda.es

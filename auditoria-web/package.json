@@ -1,0 +1,16 @@
+{
+  "name": "cumpleweb",
+  "version": "1.0.0",
+  "description": "Revisión de cookies, textos legales y accesibilidad para tiendas online",
+  "main": "cli.js",
+  "scripts": {
+    "test": "node test/run.js",
+    "scan": "node cli.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axe-core": "^4.14.0"
+  }
+}

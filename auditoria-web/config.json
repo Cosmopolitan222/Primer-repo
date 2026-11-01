@@ -1,0 +1,8 @@
+{
+  "name": "CumpleWeb",
+  "color": "#0b5cab",
+  "url": "https://TU-USUARIO.github.io/cumpleweb/",
+  "contact": "TU-EMAIL@ejemplo.com · cumpleweb (rellena tus datos en config.json)",
+  "senderName": "TU NOMBRE",
+  "prices": { "informe": 49, "arreglo": 190, "mantenimiento": 15 }
+}
