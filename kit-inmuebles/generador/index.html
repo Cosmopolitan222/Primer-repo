@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kit Inmueble</title>
+<meta name="description" content="Convierte las fotos de un anuncio inmobiliario en un Reel, un vídeo horizontal y un carrusel con la marca de la agencia. Funciona en el navegador, sin subir nada a ningún servidor.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f5f7; --card: #ffffff; --ink: #16181d; --muted: #5d6470; --line: #dfe2e8;
+  --accent: #0f766e; --accent-ink: #ffffff; --warn-bg: #fff5d6; --warn-ink: #6b4e00;
+  --ok: #157f3b; --field: #ffffff; --shadow: 0 1px 2px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111317; --card: #1a1d23; --ink: #eef0f3; --muted: #a2a9b4; --line: #2c313a;
+    --accent: #2bb3a5; --accent-ink: #0b1514; --warn-bg: #3a3016; --warn-ink: #f3dc9a;
+    --ok: #5fd08a; --field: #13161b; --shadow: none; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111317; --card: #1a1d23; --ink: #eef0f3; --muted: #a2a9b4; --line: #2c313a;
+  --accent: #2bb3a5; --accent-ink: #0b1514; --warn-bg: #3a3016; --warn-ink: #f3dc9a;
+  --ok: #5fd08a; --field: #13161b; --shadow: none; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; padding-block: 16px 6px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); max-width: 1280px; margin: 0 auto; }
+header h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+header p { margin: 0; color: var(--muted); font-size: 14px; }
+#support { margin-left: auto; font-size: 13px; padding: 3px 10px; border-radius: 99px; background: var(--card); border: 1px solid var(--line); }
+#support.ok { color: var(--ok); }
+#support.bad { background: var(--warn-bg); color: var(--warn-ink); border-color: transparent; }
+main { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 20px; padding-block: 10px 40px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); max-width: 1280px; margin: 0 auto; align-items: start; }
+@media (max-width: 920px) { main, header { grid-template-columns: minmax(0, 1fr); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); } }
+#notice { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; width: min(1240px, calc(100% - 32px)); margin: 0 auto 8px; padding: 10px 14px; border-radius: 10px; font-size: 14px; background: var(--warn-bg); color: var(--warn-ink); }
+#notice.ok { background: var(--card); color: var(--ok); border: 1px solid var(--line); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; }
+.card h2 { font-size: 15px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+.card h2 .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 12px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; }
+.grid .wide { grid-column: 1 / -1; }
+label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+label.check { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+input[type=text], input[type=tel], input[type=number], input[type=url], select, textarea {
+  width: 100%; font: inherit; color: var(--ink); background: var(--field); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; min-height: 38px;
+}
+textarea { min-height: 92px; resize: vertical; }
+input[type=color] { width: 100%; height: 38px; border: 1px solid var(--line); border-radius: 9px; background: var(--field); padding: 3px; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.hint { color: var(--muted); font-size: 12.5px; margin: 6px 0 0; }
+button, .btn { font: inherit; font-weight: 600; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 10px; padding: 8px 14px; cursor: pointer; min-height: 38px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+button:hover, .btn:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+#drop { border: 2px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center; color: var(--muted); cursor: pointer; }
+#drop.over { border-color: var(--accent); color: var(--ink); }
+#photos { display: grid; gap: 8px; margin-top: 12px; }
+.ph { display: grid; grid-template-columns: 26px 84px minmax(0, 1fr) auto; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 6px; background: var(--field); }
+.ph .fields { display: grid; gap: 4px; min-width: 0; }
+.ph .fields input { min-height: 32px; padding: 5px 8px; font-size: 14px; }
+@media (max-width: 560px) {
+  .ph { grid-template-columns: 72px minmax(0, 1fr); }
+  .ph .idx { display: none; }
+  .ph img { width: 72px; height: 54px; }
+  .ph .acts { grid-column: 1 / -1; justify-content: flex-end; }
+}
+.ph[draggable=true] { cursor: grab; }
+.ph.dragging { opacity: .4; }
+.ph .idx { font-weight: 700; text-align: center; color: var(--muted); }
+.ph img { width: 84px; height: 56px; object-fit: cover; border-radius: 6px; display: block; }
+.ph .acts { display: flex; gap: 4px; }
+.ph .acts button { min-height: 32px; padding: 4px 9px; }
+.ph .tag { font-size: 11px; color: var(--accent); font-weight: 700; }
+aside { position: sticky; top: 12px; }
+@media (max-width: 920px) { aside { position: static; } }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.tabs button[aria-pressed=true] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+#stage { display: grid; place-items: center; background: #0b0c0f; border-radius: 12px; padding: 10px; }
+#pv { display: block; max-width: 100%; height: auto; border-radius: 6px; }
+.controls { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.controls input[type=range] { flex: 1; }
+.controls .time { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); min-width: 86px; text-align: right; }
+.gen { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.gen .full { grid-column: 1 / -1; }
+#progress { margin-top: 10px; display: none; }
+#progress.on { display: block; }
+#progress .bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+#progress .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s; }
+#progress .row { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 13px; color: var(--muted); }
+#outputs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; margin-top: 10px; }
+.out { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 13.5px; min-width: 0; }
+.out .btn, .out button { padding: 6px 10px; min-height: 34px; }
+.out .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.out .size { color: var(--muted); font-variant-numeric: tabular-nums; }
+#caption { min-height: 160px; font-size: 13px; }
+.row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Kit Inmueble</h1>
+  <p>Fotos del anuncio → Reel, vídeo horizontal, carrusel y texto. Todo se procesa en este navegador: no se sube nada.</p>
+  <span id="support">Comprobando el navegador…</span>
+</header>
+<div id="notice" role="status" hidden></div>
+<main>
+  <section>
+    <div class="card">
+      <h2><span class="n">1</span> Fotos del inmueble</h2>
+      <div id="drop" tabindex="0" role="button">Arrastra aquí las fotos o <u>pulsa para elegirlas</u><br><small>La primera es la portada. 6–10 fotos ≈ 20–30 s de vídeo.</small></div>
+      <p class="hint">En cada foto puedes poner la estancia («Cocina») y un punto fuerte que se verá grande sobre ella («Cocina abierta totalmente equipada»).</p>
+      <input id="photoInput" type="file" accept="image/*" multiple class="sr">
+      <div id="photos"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">2</span> Datos del anuncio</h2>
+      <div class="grid">
+        <label>Operación
+          <select id="op"><option value="venta">Venta</option><option value="alquiler">Alquiler</option></select>
+        </label>
+        <label>Etiqueta (opcional)
+          <input id="label" type="text" placeholder="EXCLUSIVA, REBAJADO…" maxlength="24">
+        </label>
+        <label>Precio (€)
+          <input id="price" type="text" inputmode="numeric" placeholder="245000">
+        </label>
+        <label>Referencia
+          <input id="ref" type="text" placeholder="V-1234" maxlength="20">
+        </label>
+        <label class="wide">Título
+          <input id="title" type="text" placeholder="Piso reformado con terraza y mucha luz" maxlength="80">
+        </label>
+        <label class="wide">Ubicación
+          <input id="location" type="text" placeholder="Ruzafa, Valencia" maxlength="60">
+        </label>
+        <label>Habitaciones <input id="rooms" type="number" min="0" max="20" placeholder="3"></label>
+        <label>Baños <input id="baths" type="number" min="0" max="20" placeholder="2"></label>
+        <label>Superficie (m²) <input id="m2" type="number" min="0" max="99999" placeholder="95"></label>
+      </div>
+      <p class="hint">Los puntos fuertes («Terraza de 20 m² orientada al sur»…) se escriben en cada foto, en el paso 1. La 2.ª foto muestra además habitaciones, baños y m².</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">3</span> Inmobiliaria (marca)</h2>
+      <div class="row2" style="margin-bottom:10px">
+        <select id="profile" style="flex:1;min-width:160px" aria-label="Perfil guardado"><option value="">— Perfil guardado —</option></select>
+        <button id="saveProfile" type="button">Guardar perfil</button>
+        <button id="delProfile" type="button">Borrar</button>
+      </div>
+      <div class="grid">
+        <label class="wide">Nombre de la inmobiliaria <input id="agName" type="text" placeholder="Inmobiliaria Mirador" maxlength="50"></label>
+        <label>Logo <input id="logoInput" type="file" accept="image/*"></label>
+        <label>Color de marca <input id="color" type="color" value="#0f766e"></label>
+        <label>Teléfono <input id="phone" type="tel" placeholder="963 000 000"></label>
+        <label>WhatsApp <input id="whatsapp" type="tel" placeholder="600 000 000"></label>
+        <label class="wide">Web <input id="web" type="text" placeholder="www.inmobiliariamirador.es"></label>
+        <label class="wide">Frase final (opcional) <input id="cta" type="text" placeholder="¿Te interesa? Pide tu visita" maxlength="60"></label>
+        <label class="check wide"><input id="plate" type="checkbox" checked> Poner el logo sobre una placa blanca (recomendado si el logo es oscuro)</label>
+      </div>
+      <p class="hint" id="profileMsg">Los perfiles se guardan solo en este navegador.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">4</span> Opciones</h2>
+      <div class="grid">
+        <label>Idioma del vídeo
+          <select id="lang"><option value="es">Español</option><option value="en">English</option></select>
+        </label>
+        <label>Estilo
+          <select id="style"><option value="dinamico">Dinámico (pantalla completa)</option><option value="marco">Marco (foto entera, fondo difuminado)</option></select>
+        </label>
+        <label>Segundos por foto <input id="perPhoto" type="range" min="1.8" max="4" step="0.1" value="2.6"></label>
+        <label>Calidad
+          <select id="quality"><option value="1080">Alta 1080p (para publicar)</option><option value="720">Ligera 720p (para WhatsApp)</option></select>
+        </label>
+        <label class="check wide"><input id="sample" type="checkbox"> Muestra con marca de agua (para enseñar a una agencia antes de cobrar)</label>
+        <label class="wide">Texto de la marca de agua <input id="wmText" type="text" placeholder="Tu nombre · 600 000 000" maxlength="40"></label>
+      </div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="card">
+      <div class="tabs" role="group" aria-label="Formato de la vista previa">
+        <button type="button" data-fmt="reel" aria-pressed="true">Reel 9:16</button>
+        <button type="button" data-fmt="wide" aria-pressed="false">Vídeo 16:9</button>
+        <button type="button" data-fmt="post" aria-pressed="false">Carrusel 4:5</button>
+      </div>
+      <div id="stage"><canvas id="pv" width="405" height="720" aria-label="Vista previa"></canvas></div>
+      <div class="controls" id="videoControls">
+        <button type="button" id="play" aria-label="Pausa">❚❚</button>
+        <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Posición">
+        <span class="time" id="time">0,0 / 0,0 s</span>
+      </div>
+      <div class="controls" id="slideControls" hidden>
+        <button type="button" id="prevSlide">←</button>
+        <span class="time" id="slideNo" style="flex:1;text-align:center">1 / 1</span>
+        <button type="button" id="nextSlide">→</button>
+      </div>
+      <div class="gen">
+        <button type="button" class="primary" id="genReel">Reel MP4</button>
+        <button type="button" class="primary" id="genWide">Vídeo 16:9 MP4</button>
+        <button type="button" id="genStills">Carrusel + story (JPG)</button>
+        <button type="button" id="genZip">Todo en un ZIP</button>
+      </div>
+      <div id="progress"><div class="bar"><i></i></div><div class="row"><span id="progTxt">Generando…</span><button type="button" id="cancel">Cancelar</button></div></div>
+      <div id="outputs"></div>
+    </div>
+    <div class="card">
+      <h2>Texto para la publicación</h2>
+      <textarea id="caption" readonly></textarea>
+      <div class="row2" style="margin-top:8px"><button type="button" id="copyCaption">Copiar texto</button><span class="hint" id="copyMsg"></span></div>
+    </div>
+  </aside>
+</main>
+<script src="vendor/mp4-muxer.js"></script>
+<script src="src/i18n.js"></script>
+<script src="src/render.js"></script>
+<script src="src/encode.js"></script>
+<script src="src/zip.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>
